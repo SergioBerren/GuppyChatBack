@@ -91,7 +91,7 @@ public class ContactoController {
     
     // Obtener todos los contactos de un usuario con información completa
     @GetMapping("/lista/{usuarioId}")
-    public ResponseEntity<?> obtenerContactos(@PathVariable String usuarioId) {
+    public ResponseEntity<?> obtenerContactos(@PathVariable("usuarioId") String usuarioId) {
         List<Contacto> contactos = contactoRepo.findByUsuarioId(usuarioId);
         
         List<Map<String, Object>> contactosConInfo = contactos.stream().map(contacto -> {
@@ -116,7 +116,7 @@ public class ContactoController {
     
     // Buscar contactos por nombre personalizado
     @GetMapping("/buscar/{usuarioId}")
-    public ResponseEntity<?> buscarContactos(@PathVariable String usuarioId, 
+    public ResponseEntity<?> buscarContactos(@PathVariable("usuarioId") String usuarioId, 
                                             @RequestParam String query) {
         List<Contacto> contactos = contactoRepo.buscarPorNombre(usuarioId, query);
         
@@ -142,7 +142,7 @@ public class ContactoController {
     
     // Eliminar contacto
     @DeleteMapping("/{contactoId}")
-    public ResponseEntity<?> eliminarContacto(@PathVariable Long contactoId) {
+    public ResponseEntity<?> eliminarContacto(@PathVariable("contactoId") Long contactoId) {
         Optional<Contacto> contacto = contactoRepo.findById(contactoId);
         if (contacto.isEmpty()) {
             return ResponseEntity.notFound().build();

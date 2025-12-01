@@ -19,7 +19,7 @@ public class AuthController {
     private final UsuarioRepositorio usuarioRepositorio;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-
+    
     public AuthController(UsuarioRepositorio usuarioRepositorio, 
                          PasswordEncoder passwordEncoder, 
                          JwtUtil jwtUtil) {
@@ -27,7 +27,7 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
-
+    
     @PostMapping("/register")
     public ResponseEntity<?> registrar(@RequestBody Usuario usuario) {
         if (usuario.getCorreo() == null || usuario.getPassword() == null || usuario.getNombreUsuario() == null) {
@@ -52,7 +52,7 @@ public class AuthController {
         
         return ResponseEntity.ok(respuesta);
     }
-
+    
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> datos) {
         String correo = datos.get("email");
@@ -84,5 +84,37 @@ public class AuthController {
         respuesta.put("user", userData);
         
         return ResponseEntity.ok(respuesta);
+    }
+    
+    // ✅ NUEVO: Cambiar contraseña
+    @PostMapping("/cambiar-password")
+    public ResponseEntity<?> cambiarPassword(@RequestBody Map<String, String> datos) {
+        String correo = datos.get("correo");
+        String passwordActual = datos.get("passwordActual");
+        String passwordNueva = datos.get("passwordNueva");
+        
+        if (correo == null || passwordActual == null || passwordNueva == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Faltan campos obligatorios"));
+        }
+        
+        Optional<Usuario> opt = usuarioRepositorio.findByCorreo(correo);
+        if (opt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of("error", "Usuario no encontrado"));
+        }
+        
+        Usuario usuario = opt.get();
+        
+        // Verificar contraseña actual
+        if (!passwordEncoder.matches(passwordActual, usuario.getPassword())) {
+            return ResponseEntity.status(401).body(Map.of("error", "La contraseña actual es incorrecta"));
+        }
+        
+        // Actualizar contraseña
+        usuario.setPassword(passwordEncoder.encode(passwordNueva));
+        usuarioRepositorio.save(usuario);
+        
+        System.out.println("✅ Contraseña cambiada para: " + correo);
+        
+        return ResponseEntity.ok(Map.of("mensaje", "Contraseña actualizada correctamente"));
     }
 }
