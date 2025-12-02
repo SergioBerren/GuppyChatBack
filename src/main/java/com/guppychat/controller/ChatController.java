@@ -50,7 +50,6 @@ public class ChatController {
     }
 
     // Obtener mensajes entre dos usuarios específicos
-    // ✅ CORREGIDO: Agregado ("usuarioId") y ("otroUsuarioId")
     @GetMapping("/chats/{usuarioId}/conversacion/{otroUsuarioId}")
     public List<Chat> obtenerConversacion(
             @PathVariable("usuarioId") String usuarioId,
